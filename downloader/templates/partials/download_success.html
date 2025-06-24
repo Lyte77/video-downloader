@@ -1,0 +1,12 @@
+<div class="p-4 bg-white rounded shadow border mt-4">
+  {% for message in messages %}
+    <p class="text-green-700 font-medium">{{ message|safe }}</p>
+  {% endfor %}
+
+  {% if transcript %}
+    <div class="mt-4">
+      <h3 class="font-semibold text-gray-800">Transcript:</h3>
+      <pre class="whitespace-pre-wrap text-sm bg-gray-50 p-2 mt-1 border">{{ transcript }}</pre>
+    </div>
+  {% endif %}
+</div>

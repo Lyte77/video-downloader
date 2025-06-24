@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import yt_dlp
 import os
+from .helper import extract_audio, transcribe_audio
 from .tasks import download_video_task
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
@@ -48,27 +49,7 @@ def get_url(request):
         "thumbnail": thumbnail,
         "formats": formats,
     })
-    # try:
-    #     with yt_dlp.YoutubeDL({'quiet': True, 'noplaylist': True}) as ydl:
-    #         info = ydl.extract_info(url, download=False)
-    #         # context = {
-    #         #     'title': info['title'],
-    #         #     'thumbnail': info['thumbnail'],
-    #         #     'video_id': info['id']
-    #         # }
-    #         title, thumbnail, formats = get_video_formats(url)
-    #         context = {
-    #             "title": title,
-    #             "thumbnail": thumbnail,
-    #             "formats": formats,
-    #             "url": url
-    #     }
-
-    #         return render(request, "partials/preview_card.html", context)
-
-    # except Exception:
-    #     return HttpResponse("<p class='text-red-600'>Failed to load video info.</p>")
-    
+   
 
 
 def get_video_formats(url):
@@ -101,10 +82,15 @@ def get_video_formats(url):
 
 
 def download_video(request):
-     video_id = request.POST.get("video_id")
-     url = f"https://www.youtube.com/watch?v={video_id}"
+   
+     format_id = request.POST.get("format_id")
+     url = request.POST.get("url")
      output_dir = "downloads"
      os.makedirs(output_dir, exist_ok=True)
+     extract_audio_flag = request.POST.get("extract_audio") == "1"
+     generate_transcript_flag = request.POST.get("generate_transcript") == "1"
+     print("▶️ Download URL:", url)
+     print("📺 Format ID:", format_id)
 
      ydl_opts = {
         'format': 'bestvideo+bestaudio/best',
@@ -115,20 +101,37 @@ def download_video(request):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
-            return FileResponse(
-                open(filename, 'rb'),
-                as_attachment=True,  
-                filename=os.path.basename(filename)  
+            title = info.get("title", "video")
+        # Feature 1: Extract Audio
+        audio_path = None
+        if extract_audio_flag:
+            audio_path = extract_audio(filename)
+
+        # Feature 2: Generate Transcript
+        transcript = None
+        if generate_transcript_flag and audio_path:
+            transcript = transcribe_audio(audio_path)
+
+        messages = [f"✅ Downloaded: <strong>{title}</strong>"]
+        if extract_audio_flag:
+            messages.append("🎵 Audio extracted.")
+        if generate_transcript_flag and transcript:
+            messages.append("📄 Transcript generated.")
+
+        return render(
+                request,
+                'partials/download_success.html',
+                {
+                    "info":info,
+                    'filename':filename,
+                    'transcript':transcript,
+                    'messages':messages
+                }
             )
-     except Exception:
+            
+        
+     except Exception as e:
+        print(f"Download error", e)
         return HttpResponse("<p class='text-red-600'>Download failed.</p>")
      
 
-def get_progress(request, task_id):
-    progress = Progress(AsyncResult(task_id))
-    value = int(progress.get_info()['progress']['percent'])
-
-    if value == 100:
-        return render(request, 'partials/success.html', {"message": "✅ Download complete!"})
-
-    return render(request, 'partials/progress_bar.html', {"value": value})

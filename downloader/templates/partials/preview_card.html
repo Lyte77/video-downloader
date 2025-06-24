@@ -3,12 +3,13 @@
   <h2 class="text-xl font-bold">{{ title }}</h2>
   <img src="{{ thumbnail }}" class="w-60 mt-2 rounded" alt="Video thumbnail" />
 
-  <form 
-    hx-post="{% url 'download_video' %}" 
-     hx-target="#progress-container" 
-    hx-swap="innerHTML"
-    method="POST" 
-    class="mt-4 space-y-4">
+ <form 
+    id="download-form"
+      hx-post="{% url 'download_video' %}" 
+      hx-target="#download-status"
+      class="mt-4 space-y-4"
+      
+      hx-indicator="#loading-spinner">
     
     {% csrf_token %}
     <input type="hidden" name="url" value="{{ url }}">
@@ -18,8 +19,32 @@
       <strong>Format:</strong> {{ formats.0.resolution }} • {{ formats.0.ext }} • {{ formats.0.filesize|filesizeformat }}
     </p>
 
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+    <!-- Feature Toggles -->
+  <label class="flex items-center space-x-2">
+    <input type="checkbox" name="extract_audio" value="1" class="form-checkbox">
+    <span>Extract Audio</span>
+  </label>
+
+  <label class="flex items-center space-x-2">
+    <input type="checkbox" name="generate_transcript" value="1" class="form-checkbox">
+    <span>Generate Transcript</span>
+  </label>
+
+    <button type="submit" id="download-btn" class="bg-green-600 text-white px-4 py-2 rounded">
       Download
     </button>
-  </form>
+  </form> 
+  
+  
+<div id="loading-spinner" class="htmx-indicator">
+    <div class="flex items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span class="ml-2">Downloading...</span>
+        <span class="ml-2">Extracting audio</span>
+        <span class="ml-2">Extracting transcript</span>
+    </div>
 </div>
+
+</div>
+
+<div id="download-status"></div>

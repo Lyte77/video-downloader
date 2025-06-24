@@ -16,6 +16,7 @@ dependencies = [
     "django-tailwind>=4.0.1",
     "ffmpeg>=1.4",
     "openai>=1.88.0",
+    "openai-whisper>=20250625",
     "psycopg2-binary>=2.9.10",
     "pytube>=15.0.0",
     "redis>=6.2.0",
