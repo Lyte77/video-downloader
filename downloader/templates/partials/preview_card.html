@@ -1,0 +1,25 @@
+<!-- templates/partials/preview_card.html -->
+<div class="p-4 border rounded">
+  <h2 class="text-xl font-bold">{{ title }}</h2>
+  <img src="{{ thumbnail }}" class="w-60 mt-2 rounded" alt="Video thumbnail" />
+
+  <form 
+    hx-post="{% url 'download_video' %}" 
+     hx-target="#progress-container" 
+    hx-swap="innerHTML"
+    method="POST" 
+    class="mt-4 space-y-4">
+    
+    {% csrf_token %}
+    <input type="hidden" name="url" value="{{ url }}">
+    <input type="hidden" name="format_id" value="{{ formats.0.format_id }}">
+
+    <p class="text-sm text-gray-600">
+      <strong>Format:</strong> {{ formats.0.resolution }} • {{ formats.0.ext }} • {{ formats.0.filesize|filesizeformat }}
+    </p>
+
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+      Download
+    </button>
+  </form>
+</div>
