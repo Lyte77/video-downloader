@@ -1,0 +1,14 @@
+{% if messages %}
+  <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50">
+    {% for message in messages %}
+      <div 
+        class="px-4 py-3 rounded-lg shadow-md text-sm font-medium text-white transition-opacity duration-500 opacity-100 {{ message.tags }}"
+        hx-get="{% url 'clear_message' %}" 
+        hx-trigger="load delay:4s"
+        hx-swap="outerHTML"
+      >
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

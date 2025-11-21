@@ -1,12 +1,29 @@
-<div class="p-4 bg-white rounded shadow border mt-4">
-  {% for message in messages %}
-    <p class="text-green-700 font-medium">{{ message|safe }}</p>
-  {% endfor %}
+<div 
+  class="p-5 rounded-xl shadow-lg 
+         text-white ring-1 ring-white/10 animate-[fadeIn_0.4s_ease-out,slideUp_0.4s_ease-out]">
+    
+    <!-- Header Row -->
+    <div class="flex items-start gap-3">
+        <div class="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
 
-  {% if transcript %}
-    <div class="mt-4">
-      <h3 class="font-semibold text-gray-800">Transcript:</h3>
-      <pre class="whitespace-pre-wrap text-sm bg-gray-50 p-2 mt-1 border">{{ transcript }}</pre>
+        <p class="text-base font-medium leading-snug">
+            Processing complete! Your download should start automatically.
+        </p>
     </div>
-  {% endif %}
+
+    {% if transcript_text %}
+    <!-- Transcript Console -->
+    <div 
+      class="mt-4 rounded-lg 
+         p-4 font-mono text-sm leading-relaxed 
+         max-h-64 overflow-y-auto overflow-x-hidden 
+         whitespace-pre-wrap wrap-break-words">
+        {{ transcript_text }}
+    </div>
+    {% endif %}
 </div>

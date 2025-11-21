@@ -1,8 +1,10 @@
 import subprocess
 import os
 import whisper
+from django.conf import settings
 
-AUDIO_DIR = "audio"
+
+AUDIO_DIR = os.path.join(settings.MEDIA_ROOT, "audio")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 def extract_audio(video_path):
     """Extract .wav audio from video using ffmpeg"""
@@ -42,4 +44,6 @@ def transcribe_audio(audio_path):
     except Exception as e:
         print("❌ Transcription failed:", e)
         return None
+
+
 

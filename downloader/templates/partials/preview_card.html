@@ -1,50 +1,106 @@
-<!-- templates/partials/preview_card.html -->
-<div class="p-4 border rounded">
-  <h2 class="text-xl font-bold">{{ title }}</h2>
-  <img src="{{ thumbnail }}" class="w-60 mt-2 rounded" alt="Video thumbnail" />
 
- <form 
-    id="download-form"
-      hx-post="{% url 'download_video' %}" 
-      hx-target="#download-status"
-      class="mt-4 space-y-4"
-      
-      hx-indicator="#loading-spinner">
+
+<!-- Page container -->
+<div class="min-h-screen flex items-center justify-center px-4 py-10">
+  <!-- Content wrapper with entry animation -->
+  <div
+    class="w-full max-w-2xl space-y-8 opacity-0 translate-y-6 animate-fadeIn"
+  >
     
-    {% csrf_token %}
-    <input type="hidden" name="url" value="{{ url }}">
+    <!-- Card -->
+    <div
+      class="p-6 border border-gray-200 dark:border-[#282f39] rounded-xl bg-white/50 dark:bg-background-dark/50">
+      <div class="flex flex-col sm:flex-row items-stretch justify-between gap-6">
+        <div class="flex-shrink-0 w-full sm:w-48">
+          <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
+            data-alt="Abstract gradient thumbnail placeholder"
+            style='background-image: url({{ thumbnail }});'>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 flex-1">
+          <p class="text-black dark:text-white text-base font-bold leading-tight">{{ title }}</p>
+          <p class="text-gray-500 dark:text-[#9da8b9] text-sm font-normal leading-normal">Video duration: 12:34</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options & Download -->
+    <form
+     
+      id="download-form"
+      hx-post="{% url 'download_video' %}" 
+      hx-target="#transcript-container"
+      hx-swap="innerHTML"
+      hx-indicator="#spinnerx"
+     
+      class="p-6 border border-gray-200 dark:border-[#282f39] rounded-xl bg-white/50 dark:bg-background-dark/50"
+    >
+      {% csrf_token %}
+      <div class="flex flex-col items-center gap-6">
+         <input type="hidden" name="url" value="{{ url }}">
     <input type="hidden" name="format_id" value="{{ formats.0.format_id }}">
+        <!-- RadioList -->
+        <div class="flex flex-wrap gap-3 justify-center">
+          
+          
+          <label
+            class="text-sm font-medium leading-normal flex items-center justify-center rounded-lg border border-gray-300 dark:border-[#3b4554] px-4 h-11 text-gray-700 dark:text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary relative cursor-pointer transition-all">
+           Download video
+            <input class="invisible absolute" name="download_video" type="checkbox" value="1" />
+          </label>
+          <label
+            class="text-sm font-medium leading-normal flex items-center justify-center rounded-lg border border-gray-300 dark:border-[#3b4554] px-4 h-11 text-gray-700 dark:text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary relative cursor-pointer transition-all">
+            Extract audio
+            <input class="invisible absolute" name="extract_audio" type="checkbox" value="1" />
+          </label>
+          
+          <label
+            class="text-sm font-medium leading-normal flex items-center justify-center rounded-lg border border-gray-300 dark:border-[#3b4554] px-4 h-11 text-gray-700 dark:text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary relative cursor-pointer transition-all">
+            Generate transcript
+            <input class="invisible absolute" name="generate_transcript" type="checkbox" value="1" />
+          </label>
+        </div>
 
-    <p class="text-sm text-gray-600">
-      <strong>Format:</strong> {{ formats.0.resolution }} • {{ formats.0.ext }} • {{ formats.0.filesize|filesizeformat }}
-    </p>
+        <!-- SingleButton -->
+        <div class="flex justify-center w-full">
+          <button
+            type="submit"
+            id="download-btn"
+            class="flex min-w-[84px] w-full max-w-xs items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+            <span class="material-symbols-outlined">download</span>
+            <span id="spinnerx" class="htmx-indicator ml-2">Processing</span>
 
-    <!-- Feature Toggles -->
-  <label class="flex items-center space-x-2">
-    <input type="checkbox" name="extract_audio" value="1" class="form-checkbox">
-    <span>Extract Audio</span>
-  </label>
+          </button>
+   
+        </div>
+               <div class="flex justify-center items-center mt-4">
+  <span
+    id="spinnerx"
+    class="hidden loading loading-bars loading-lg text-primary animate-pulse"
+  ></span>
+</div>
 
-  <label class="flex items-center space-x-2">
-    <input type="checkbox" name="generate_transcript" value="1" class="form-checkbox">
-    <span>Generate Transcript</span>
-  </label>
+        <!-- Spinner -->
 
-    <button type="submit" id="download-btn" class="bg-green-600 text-white px-4 py-2 rounded">
-      Download
-    </button>
-  </form> 
-  
-  
-<div id="loading-spinner" class="htmx-indicator">
-    <div class="flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span class="ml-2">Downloading...</span>
-        <span class="ml-2">Extracting audio</span>
-        <span class="ml-2">Extracting transcript</span>
+
+
+
+</div>
+
+
+</div>
+</form>
+
+</div>
+<div id="transcript-container" class="mt-4"></div>
+
+ 
+<div id="slow-network-msg" class="hidden mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded animate-pulse">
+    <div class="flex items-center">
+        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+            <p class="font-bold">Taking a bit longer than usual...</p>
+            <p class="text-sm">It seems you might have a slower network connection, but don't worry! I'm still downloading it for you. Please hold on.</p>
+        </div>
     </div>
 </div>
-
-</div>
-
-<div id="download-status"></div>

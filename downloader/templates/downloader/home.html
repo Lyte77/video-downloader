@@ -4,31 +4,103 @@
 {% block content %}
 
 
-<h1 class="text-center">Youtube Downloader</h1>
-<div class="w-full max-w-md" id="form-wrapper">
-<form>
-  {% csrf_token %}
-  <input 
-    type="text" 
-    name="url" 
-    placeholder="Paste your video URL"
-    required
-    hx-post="{% url 'get_url' %}" 
-    hx-trigger="change delay:500ms"
-    hx-target="#preview-container"
-    hx-swap="innerHTML"
-    hx-indicator="#spinner"
-    class="border p-2 w-full"
-  />
-</form>
-<!-- Loading spinner for HTMX -->
-<div class="text-center mt-4">
- <span id="spinner" class="loading loading-bars loading-lg htmx-indicator"></span>
-</div>
-<div id="preview-container" class="mt-6 w-full max-w-md"></div>
-    
+
+<div class="relative flex min-h-screen w-full flex-col">
+  <div class="layout-container flex h-full grow flex-col">
+    <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+      <div class="layout-content-container flex flex-col w-full max-w-[960px] flex-1">
+        <!-- TopNavBar -->
+        <header
+          class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#282f39] px-4 sm:px-10 py-3">
+          <div class="flex items-center gap-4 text-black dark:text-white">
+            <div class="size-4 text-primary">
+              <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+              </svg>
+            </div>
+            <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">VideoDownloader</h2>
+          </div>
+          <div class="hidden sm:flex flex-1 justify-end gap-8">
+            <div class="flex items-center gap-9">
+              <a class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                href="#">How it works</a>
+              <a class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                href="#">Pricing</a>
+              <a class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                href="#">Contact</a>
+            </div>
+            <div class="flex gap-2">
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                <span class="truncate">Sign Up</span>
+              </button>
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-[#282f39] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-[#3b4554] transition-colors">
+                <span class="truncate">Log In</span>
+              </button>
+            </div>
+          </div>
+        </header>
+        <!-- HeroSection -->
+        <main class="flex-grow">
+  <div class="py-8 sm:py-12 md:py-16 flex flex-col items-center text-center">
+    <div class="flex flex-col gap-3 sm:gap-4 max-w-2xl">
+      <h1 class="text-black dark:text-white text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em]">
+        The Simplest Way to Download Any Video
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+        Save videos, audio, and transcripts from YouTube, Instagram, X, and more.
+      </p>
+    </div>
+
+    <form class="w-full max-w-[560px] mt-6">
+      {% csrf_token %}
+      <div class="flex w-full items-stretch rounded-lg h-14 sm:h-16 shadow-sm">
+        <input
+          type="url"
+          name="url"
+          required
+          hx-post="{% url 'get_url' %}"
+          hx-trigger="keyup changed delay:800ms"
+          hx-target="#preview-container"
+          hx-swap="innerHTML"
+          hx-indicator="#spinner"
+          placeholder="Paste your video link here..."
+          class="w-full rounded-lg border border-gray-300 dark:border-[#3b4554]
+                 bg-white dark:bg-[#1c2027]
+                 px-4 py-3 text-sm sm:text-base text-black dark:text-white
+                 placeholder:text-gray-400 dark:placeholder:text-[#9da8b9]
+                 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1
+                 transition-all duration-200 ease-in-out
+                 shadow-sm hover:shadow-md"
+        />
+      </div>
+    </form>
+
+    <!-- Spinner -->
+    <div class="flex justify-center items-center mt-4">
+      <span
+        id="spinner"
+        class="htmx-indicator loading loading-bars loading-lg text-primary animate-pulse"
+      ></span>
+    </div>
+
+    <!-- Dynamic Preview Section -->
+    <div
+      id="preview-container"
+      class="mt-6 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center
+             animate-fadeIn transition-all duration-500 ease-out"
+    ></div>
+    <div id="download-status"></div>
+  </div>
+</main>
+
+      </div>
+    </div>
+ 
+  </div>
 </div>
 
 
-<div id="progress-container"></div>
+ 
 {% endblock content%}

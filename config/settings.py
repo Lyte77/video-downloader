@@ -13,15 +13,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import environ
 import os
+from django.contrib import messages
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env()
 environ.Env.read_env()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -33,7 +35,7 @@ SECRET_KEY = 'django-insecure-qjh6-9da%4v@66u=bgywm%egt*7gau%8ylaztl71=$hho!t1xz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ '*' ]
 
 
 # Application definition
@@ -48,8 +50,7 @@ INSTALLED_APPS = [
     'downloader',
     'users',
 
-    'tailwind',
-    'theme',
+   
     'django_browser_reload',
     'django_htmx',
     "django_celery_results",
@@ -150,12 +151,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'downloader' / 'static',
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'downloader' / 'static',
+# ]
+STATICFILES_DIRS = [BASE_DIR / 'static',]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+DOWNLOADS_DIR = os.path.join(MEDIA_ROOT, "downloads")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -166,3 +172,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Celery settings
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
+
+MESSAGE_TAGS = {
+    messages.SUCCESS: 'bg-neon-pink text-deep-black',
+    messages.ERROR: 'bg-red-600 text-white',
+    messages.INFO: 'bg-blue-500 text-white',
+    messages.WARNING: 'bg-yellow-500 text-black',
+}
