@@ -1,6 +1,7 @@
 import subprocess
 import os
 import whisper
+import openai
 from django.conf import settings
 
 
@@ -33,6 +34,8 @@ def extract_audio(video_path):
 
 def transcribe_audio(audio_path):
     """Transcribe audio to text using Whisper"""
+    # client = openai.OpenAI()
+    # transcript = 
     try:
         model = whisper.load_model("base")  # or "small", "medium", "large" if you want better accuracy
         print("🎙️ Transcribing audio...")
@@ -45,5 +48,15 @@ def transcribe_audio(audio_path):
         print("❌ Transcription failed:", e)
         return None
 
+# def transcribe_audio(audio_path):
+#     client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
+#     with open(audio_path, "rb") as audio_file:
+#         transcript = client.audio.transcriptions.create(
+#             model="whisper-1",
+#             file=audio_file,
+#             response_format="verbose_json",
+#             timestamp_granularities=["segment"]
+#         )
+#     return transcript.segments
 

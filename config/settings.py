@@ -14,6 +14,7 @@ from pathlib import Path
 import environ
 import os
 from django.contrib import messages
+from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
@@ -21,6 +22,10 @@ os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env()
 environ.Env.read_env()
+
+load_dotenv()
+
+
 
 
 
@@ -98,23 +103,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': env('DB_PORT'),
+#     }
+# }
 
 
 # Password validation
@@ -179,3 +184,5 @@ MESSAGE_TAGS = {
     messages.INFO: 'bg-blue-500 text-white',
     messages.WARNING: 'bg-yellow-500 text-black',
 }
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

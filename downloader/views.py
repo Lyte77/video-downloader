@@ -116,29 +116,52 @@ def get_video_formats(url):
         "quiet": True,
         "skip_download": True,
         "nocheckcertificate": True,
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "user_agent": "Mozilla/5.0",
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
-        title = info.get("title", "")
-        thumbnail = info.get("thumbnail", "")
-        format_id = info.get("format_id", "")
-        ext = info.get("ext", "")
-        width = info.get("width", "")
-        height = info.get("height", "")
-        filesize = info.get("filesize") or 0
 
-        # Construct single merged format
-        merged_format = {
-            "format_id": format_id,
-            "ext": ext,
-            "resolution": f"{width}x{height}" if width and height else "Unknown",
-            "filesize": filesize,
-        }
+    title = info.get("title", "")
+    thumbnail = info.get("thumbnail", "")
 
-    return title, thumbnail, [merged_format]
+    formats = []
+    seen = set()
 
+    for f in info.get("formats", []):
+        # Skip unusable formats
+        if f.get("vcodec") == "none" and f.get("acodec") == "none":
+            continue
+
+        # Resolution label
+        height = f.get("height")
+        resolution = f"{height}p" if height else "audio"
+
+        # Avoid duplicates 
+        key = (resolution, f.get("ext"))
+        if key in seen:
+            continue
+        seen.add(key)
+
+        formats.append({
+            "format_id": f.get("format_id"),
+            "ext": f.get("ext"),
+            "resolution": resolution,
+            "filesize": f.get("filesize") or 0,
+            "vcodec": f.get("vcodec"),
+            "acodec": f.get("acodec"),
+        })
+
+    # Sort formats 
+    formats = sorted(
+        formats,
+        key=lambda x: (
+            0 if x["resolution"] == "audio" else int(x["resolution"].replace("p", "")),
+        ),
+        reverse=True,
+    )
+
+    return title, thumbnail, formats
 
 
 def download_video(request):
@@ -165,23 +188,33 @@ def download_video(request):
 
     try:
         # --- 2. HANDLE VIDEO DOWNLOAD ---
+        format_id = request.POST.get("format_id")
         if want_video:
             print("Starting Video Download Logic...")
+            print(f"FORMAT ID RECEIVED: '{format_id}'")
             video_id = str(uuid.uuid4())
             ydl_opts_video = {
-                "format": "bestvideo+bestaudio/best", # Downloads video + audio merged
+                 "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
                 "outtmpl": os.path.join(settings.DOWNLOADS_DIR, f"{video_id}.%(ext)s"),
+                 "merge_output_format": "mp4",
                 "noplaylist": True,
                 "quiet": True,
                 "nocheckcertificate": True,
                 "overwrites": True,
+                "geo_bypass": True,
+                "http_headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": url,
+        "Accept-Language": "en-US,en;q=0.9",
+    },
+    
             }
 
+          
             with YoutubeDL(ydl_opts_video) as ydl:
-                info = ydl.extract_info(url, download=True)
-                file_ext = info.get("ext")
-            
-            
+                         ydl.extract_info(url, download=True)
+               
+
             video_download_url = request.build_absolute_uri(f"/download-file/{video_id}/")
 
         audio_path = None
@@ -200,6 +233,12 @@ def download_video(request):
                 "noplaylist": True,
                 "quiet": True,
                 "overwrites": True,
+                "http_headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": url,
+        "Accept-Language": "en-US,en;q=0.9",
+    },
+    
             }
 
             with YoutubeDL(audio_opts) as ydl:
@@ -243,11 +282,19 @@ def download_video(request):
         print(f"Trigger Data: {trigger_data}")
         return response
 
+
+    except yt_dlp.utils.DownloadError as e:
+        logger.error(f"Download error: {e}", exc_info=True)
+
+        message = "This video could not be processed. It may be private, restricted, or unsupported."
+
     except Exception as e:
-        return render(request, 'partials/download_error.html', {"message": str(e)}, status=200)    
+        logger.error(f"Unexpected error: {e}", exc_info=True)
 
+        message = "Something went wrong while processing your request. Please try again."
 
-
+    
+    return render(request, 'partials/download_error.html', {"message": message}, status=200)    
 
 
 def serve_download(request, file_id):
@@ -261,10 +308,11 @@ def serve_download(request, file_id):
     filepath = os.path.join(folder, filename)
 
     content_type, _ = mimetypes.guess_type(filepath)
+    should_stream = request.GET.get('stream') == '1'
 
     return FileResponse(
         open(filepath, "rb"),
-        as_attachment=True,
+        as_attachment=not should_stream,
         filename=filename,
         content_type=content_type
     )

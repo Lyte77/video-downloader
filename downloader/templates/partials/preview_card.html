@@ -19,7 +19,7 @@
         </div>
         <div class="flex flex-col gap-1 flex-1">
           <p class="text-black dark:text-white text-base font-bold leading-tight">{{ title }}</p>
-          <p class="text-gray-500 dark:text-[#9da8b9] text-sm font-normal leading-normal">Video duration: 12:34</p>
+          <p class="text-gray-500 dark:text-[#9da8b9] text-sm font-normal leading-normal"></p>
         </div>
       </div>
     </div>
@@ -38,11 +38,20 @@
       {% csrf_token %}
       <div class="flex flex-col items-center gap-6">
          <input type="hidden" name="url" value="{{ url }}">
-    <input type="hidden" name="format_id" value="{{ formats.0.format_id }}">
-        <!-- RadioList -->
-        <div class="flex flex-wrap gap-3 justify-center">
-          
-          
+    <!-- <input type="hidden" name="format_id" value="{{ formats.0.format_id }}"> -->
+        <select name="format_id"
+  class="w-full max-w-xs h-11 rounded-lg border border-gray-300 dark:border-[#3b4554] px-3 bg-white dark:bg-background-dark text-sm">
+
+  {% for f in formats %}
+    <option value="{{ f.format_id }}">
+      {{ f.resolution }} ({{ f.ext }})
+    </option>
+  {% endfor %}
+
+</select>
+    
+          <!-- RadioList -->
+        <div class="flex flex-wrap gap-3 justify-center">         
           <label
             class="text-sm font-medium leading-normal flex items-center justify-center rounded-lg border border-gray-300 dark:border-[#3b4554] px-4 h-11 text-gray-700 dark:text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary relative cursor-pointer transition-all">
            Download video
