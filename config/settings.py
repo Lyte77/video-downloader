@@ -27,7 +27,7 @@ load_dotenv()
 
 
 
-ENABLE_TRANSCRIPTION = True
+ENABLE_TRANSCRIPTION = False
 
 
 
