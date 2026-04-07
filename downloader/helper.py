@@ -1,6 +1,6 @@
 import subprocess
 import os
-import whisper
+
 import openai
 from django.conf import settings
 
@@ -36,6 +36,7 @@ def transcribe_audio(audio_path):
     """Transcribe audio to text using Whisper"""
     # client = openai.OpenAI()
     # transcript = 
+    import whisper
     try:
         model = whisper.load_model("base")  # or "small", "medium", "large" if you want better accuracy
         print("🎙️ Transcribing audio...")

@@ -252,10 +252,13 @@ def download_video(request):
                 audio_download_url = request.build_absolute_uri(f"/download-file/{audio_id}/")
 
         # --- 4. HANDLE TRANSCRIPT ---
-        if want_transcript and audio_path and os.path.exists(audio_path):
-            # Pass the path of the audio we just downloaded to your AI function
-            transcript_text = transcribe_audio(audio_path)
-            
+        if want_transcript and settings.ENABLE_TRANSCRIPTION:
+            if audio_path and os.path.exists(audio_path):
+                transcript_text = transcribe_audio(audio_path)
+            else:
+               transcript_text = None
+        else:
+            transcript_text = None
            
             if not want_audio:
                os.remove(audio_path)
