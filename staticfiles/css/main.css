@@ -1,0 +1,9 @@
+ .htmx-indicator {
+    display: none;
+  }
+
+  /* HTMX automatically adds this class to parent during requests */
+  .htmx-request .htmx-indicator,
+  .htmx-request.htmx-indicator {
+    display: flex; /* or flex, depending on your layout */
+  }

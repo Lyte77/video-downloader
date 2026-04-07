@@ -24,5 +24,6 @@ dependencies = [
     "pytube>=15.0.0",
     "redis>=6.2.0",
     "whisper>=1.1.10",
+    "whitenoise>=6.12.0",
     "yt-dlp>=2025.6.9",
 ]
